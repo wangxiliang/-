@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+	<meta name="viewport" 
+	content="viewport-fit=cover,width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="renderer" content="webkit">
+	<script>var require = { urlArgs: 'v=20161011' };</script>
+	<script type="text/javascript" src="{$_W['siteroot']}/web/resource/js/lib/jquery-1.11.1.min.js"></script>
+	<script type="text/javascript" src="{$_W['siteroot']}/web/resource/js/app/util.js?v=20161011"></script>
+	<script type="text/javascript" src="{$_W['siteroot']}/web/resource/js/app/common.min.js?v=20161011"></script>
+	<script type="text/javascript" src="{$_W['siteroot']}/web/resource/js/require.js?v=20161011"></script>
+	<script type="text/javascript" src="{$_W['siteroot']}/web/resource/js/app/config.js?v=20161011"></script>
+<link rel="shortcut icon" href="/addons/zyun_vote/template/mobile/sencha.ico"><link href="/addons/zyun_vote/template/mobile/css/0.app.0a1af1ba.css?35055bc46552b8d761d2" rel="stylesheet"><link href="/addons/zyun_vote/template/mobile/css/1.chunk-vendor.6355ed29.css?35055bc46552b8d761d2" rel="stylesheet"></head>
+<body>
+	<script>
+		window.sysinfo = {
+			{if !empty($_W['fans'])}'follow': '{$_W['fans']['follow']}',{/if}
+			{if !empty($_W['uniacid'])}'uniacid': '{$_W['uniacid']}',{/if}
+			{if !empty($_W['acid'])}'acid': '{$_W['acid']}',{/if}{if !empty($_W['openid'])}'openid': '{$_W['openid']}',{/if}
+			{if !empty($_W['uid'])}'uid': '{$_W['uid']}',{/if}
+			'siteroot': '{$_W['siteroot']}',
+					'siteurl': '{$_W['siteurl']}',
+					'attachurl': '{$_W['attachurl']}',
+					'attachurl_local': '{$_W['attachurl_local']}',
+					'attachurl_remote': '{$_W['attachurl_remote']}',
+					{if defined('MODULE_URL')}'MODULE_URL': '{MODULE_URL}',{/if}
+			'cookie' : {'pre': '{$_W['config']['cookie']['pre']}'}
+			};console.log(window.sysinfo);
+	</script>
+
+	<div id="app"></div>
+	
+	
+<script type="text/javascript" src="/addons/zyun_vote/template/mobile/js/app.b396af7f.js?35055bc46552b8d761d2"></script><script type="text/javascript" src="/addons/zyun_vote/template/mobile/js/chunk-vendor.ef1611ec.js?35055bc46552b8d761d2"></script><script type="text/javascript" src="/addons/zyun_vote/template/mobile/js/runtime.a9af63dc.js?35055bc46552b8d761d2"></script></body>
+</html>

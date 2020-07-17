@@ -1,0 +1,9 @@
+{
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Core\\Model\\": "core/model/"
+        },
+        "files": ["core/function/helper.php"]
+    }
+}

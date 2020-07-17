@@ -1,0 +1,84 @@
+{template 'common/header'}
+{template 'public/lib'}
+<div class="">
+  {template 'public/breadcrumb'}
+  <div class="layui-row">
+
+    <div class="layui-col-12">
+      <form class="layui-form layui-form-pane">
+        
+        <div class="layui-form-item">
+          <label class="layui-form-label">banner类型</label>
+          <div class="layui-input-block">
+            <select name="type" lay-verify="required">
+                <option value="1" {if $data['type'] == 1} selected {/if}>首页</option>
+                <option value="2" {if $data['type'] == 2} selected {/if}>排行榜</option>
+                <option value="3" {if $data['type'] == 3} selected {/if}>报名页</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <label class="layui-form-label">跳转地址</label>
+          <div class="layui-input-block">
+            <input type="text" 
+            name="redirect_url"
+            value="{$data['redirect_url']}"  
+            placeholder="请输入完整的跳转地址 如：https://www.baidu.com，不填默认无跳转" 
+            autocomplete="off" class="layui-input">
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <label class="layui-form-label">图片上传</label>
+          <div class="layui-input-block">
+            {php echo tpl_form_field_image('src', $data['src'])}
+            <span style="color: #2F4056;">支持PNG、JPG、GIF、JPEG的图片格式，图片大小建议 750 * 450（宽可超出750以上，高度建议不低于300）</span>
+          </div>
+        </div>
+
+        <input type="text" 
+          hidden
+          name="id"
+          value="{$data['id']}"  
+          >
+        <div class="layui-form-item">
+          <div class="layui-input-block">
+            <button id="banner-submit" class="layui-btn" lay-submit lay-filter="banner-submit">立即提交</button>
+          </div>
+        </div>
+
+      </form>
+      
+    </div>
+</div>
+<script>
+  // 实例化ajax
+  const request = new Request()
+  layui.use(['element', 'form'], function(){
+    var form = layui.form
+    var element = layui.element
+    form.on('submit(banner-submit)', function(data){
+
+      let formData = data.field
+
+      if(!formData.src) {
+        layer.msg('请选择文件')
+        return false
+      }
+
+      formData.src = $('.img-responsive.img-thumbnail').attr('src')
+      console.log(formData);
+      ut.showLoading(true)
+      request.http_post("{php echo $this->createWebUrl('api_edit_banner')}", formData).then(res => {
+        console.log('res', res);
+        ut.sucDoPage(res.message, "{php echo $this->createWebUrl('banner')}")
+      })
+
+
+      return false;
+    })
+  });
+
+</script>
+{template 'common/footer'}

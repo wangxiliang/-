@@ -1,0 +1,251 @@
+{template 'common/header'}
+{template 'public/lib'}
+<div class="">
+  <div class="layui-row">
+
+    <div class="layui-col-12">
+      
+      <form class="layui-form layui-form-pane">
+        
+        <div class="layui-form-item">
+          <label class="layui-form-label">作品类型</label>
+          <div class="layui-input-block">
+            <input type="radio" lay-filter="type" name="type" value="1" title="图片" 
+            {if empty($id)} checked {elseif !empty($id) && $data['type'] == 1} checked  {/if}>
+            <input type="radio" lay-filter="type" name="type" 
+            value="2" {if !empty($id) && $data['type'] == 2} checked{/if} title="视频">
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <label class="layui-form-label">票数</label>
+          <div class="layui-input-block">
+            <input type="number" 
+              name="poll"
+              min="0"
+              placeholder="请谨慎修改"
+              value="{php echo empty($data['poll']) ? 0 : $data['poll']}"
+              autocomplete="off" class="layui-input">
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <label class="layui-form-label">姓名</label>
+          <div class="layui-input-block">
+            <input type="text" 
+              name="name"
+              lay-verify="required" 
+              placeholder="请输入姓名"
+              value="{$data['name']}"
+              autocomplete="off" class="layui-input">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">联系方式</label>
+          <div class="layui-input-block">
+            <input type="tel" 
+              name="phone"
+              value="{$data['phone']}"
+              lay-verify="required|phone" 
+              placeholder="请输入联系方式" 
+              autocomplete="off" class="layui-input">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">性别</label>
+          <div class="layui-input-block">
+            <input type="radio"  name="sex" value="1" title="男" 
+            {if empty($id)} checked {elseif $data['sex'] == 1} checked {/if}>
+
+            <input type="radio" lay-filter="sex" name="sex" value="0" title="女"
+            {if !empty($data) && (int)$data['sex'] === 0} checked{/if}>
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">作品标题</label>
+          <div class="layui-input-block">
+            <input type="text" 
+              name="title"
+              lay-verify="required" 
+              placeholder="请输入作品标题" 
+              autocomplete="off" 
+              value="{$data['title']}"
+              class="layui-input">
+          </div>
+        </div>
+
+        <div class="layui-form-item" id="enroll-1-up">
+          <label class="layui-form-label">图片上传</label>
+          <div class="layui-input-block">
+            {php echo tpl_form_field_image('src', $data['type'] == 1 ? $data['src'] : '')}
+            
+          </div>
+        </div>
+
+        <div class="layui-form-item" id="enroll-3-up">
+          <label class="layui-form-label">视频封面</label>
+          <div class="layui-input-block">
+            {php echo tpl_form_field_image('video_img', $data['video_img'])}
+            
+          </div>
+        </div>
+        <div class="layui-form-item layui-col-md7" id="enroll-2-up">
+          <label class="layui-form-label">视频上传</label>
+          <div class="layui-input-block">
+            {php echo tpl_form_field_video('src', $data['type'] == 2 ? $data['src'] : '')}
+            <button id="id-video-view" class="layui-btn">查看视频</button>
+          </div>
+          
+        </div>
+
+        <div class="layui-form-item">
+          <label class="layui-form-label">作品介绍</label>
+          <div class="layui-input-block">
+            {php echo tpl_ueditor('sub', $data['sub'])}
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <div class="layui-input-block">
+            <button id="enroll-submit" class="layui-btn" lay-submit lay-filter="enroll-submit">立即提交</button>
+          </div>
+        </div>
+
+        
+      </form>
+    </div>
+</div>
+
+<script>
+  
+
+  // 切换上传类型显示
+  function toggleUp(val) {
+      var $el = $(`#enroll-${val}-up`)
+      var siblingsElVal = val == 1 ? 2 : 1;
+      
+      
+      if(val == 2) {
+        $el.removeClass('layui-hide')
+        .siblings(`#enroll-3-up`)
+        .removeClass('layui-hide')
+        .siblings(`#enroll-1-up`)
+        .addClass('layui-hide')
+        .find("input[name='src']").attr('name', '')
+        
+        if($el.find("input[name='']").length) {
+          $el.find("input[name='']").attr('name', 'src')
+        }
+
+      }else {
+
+        $el.removeClass('layui-hide')
+        .siblings(`#enroll-${siblingsElVal}-up`)
+        .addClass('layui-hide')
+        .find("input[name='src']").attr('name', '')
+        .parents(`#enroll-${siblingsElVal}-up`)
+        .addClass('layui-hide')
+        .siblings(`#enroll-3-up`)
+        .addClass('layui-hide')
+
+        if($el.find("input[name='']").length) {
+          $el.find("input[name='']").attr('name', 'src')
+        }
+
+      }
+    }
+
+    toggleUp("{php echo empty($data['type']) ? 1 : $data['type']}")
+
+  const request = new Request()
+  
+  layui.use(['form', 'element'], function(){
+    var form = layui.form
+    var element = layui.element
+    function videoView(url) {
+      var loadstr = `
+        <video width="100%" height="100%"  controls="controls" autobuffer="autobuffer"  autoplay="autoplay" loop="loop">
+          <source src="${url}" type="video/mp4"></source>
+        </video>
+      `
+      layer.open({
+          type: 1,
+          title: '播放视频',
+          content: loadstr,
+          area: ['60%', '400px']
+      })
+    } 
+
+    // 预览视频
+    $('#id-video-view').click(function(e) {
+      e.preventDefault()
+      var url = $(this).siblings('.input-group').find('input').attr('url') || $(this).siblings('.input-group').find('input').attr('value')
+      // 
+      if(!url) return layer.msg('请先选择视频文件')
+      // console.log(url);
+      // 
+      videoView(url)
+      
+    })
+
+    // 监听作品类型 radio切换
+    form.on('radio(type)', function(data){
+      let val = data.value
+      // 清空src
+
+      toggleUp(val)
+    })
+    
+    // 表单提交
+    form.on('submit(enroll-submit)', function(data){
+      
+      let formData = data.field
+      
+      if(formData.type == 2) {
+        if(!formData.video_img) {
+          layer.msg('请选择视频封面')
+          return false
+        }else {
+          // 加上前缀
+          var reg = /(http|https):\/\/([\w.]+\/?)\S*/　
+          formData.video_img = (reg.test(formData.video_img)) ? formData.video_img : window.sysinfo.attachurl + formData.video_img
+        }
+      }
+
+      if(!formData.src) {
+        layer.msg('请选择文件')
+        return false
+      }
+
+      // 根据type获取不同的上传文件地址
+      var src = formData.type == 1 ? 
+      $('.img-responsive.img-thumbnail').attr('src') 
+      : 
+      ($('#id-video-view').siblings('.input-group').find('input').attr('url')
+      ||
+      $('#id-video-view').siblings('.input-group').find('input').attr('value'))
+
+      formData.src = src
+
+      // 如果为图片 清空视频封面
+      if(formData.type == 1) formData.video_img = ''
+      
+      formData.do_type = "{php echo $do_type}"
+      formData.id = "{php echo $id}"
+      console.log(formData);
+      ut.showLoading(true)
+      request.http_post("{php echo $this->createWebUrl('api_add_enroll')}", formData).then(res => {
+        console.log('res', res);
+        ut.sucDoPage(res.message, "{php echo $this->createWebUrl('enroll')}")
+      })
+      
+      
+      return false;
+    })
+
+
+    
+  })
+
+</script>
+{template 'common/footer'}

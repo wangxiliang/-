@@ -1,0 +1,323 @@
+{template 'common/header'}
+<style>
+  /* 重置label 宽度 */
+  .layui-form-pane .layui-form-label {
+    width: 190px !important;
+  }
+  .layui-form-pane .layui-input-block {
+    margin-left: 190px !important;
+  }
+
+  #id-poll-url {
+    color: #009688;
+  }
+</style>
+{template 'public/lib'}
+
+<div class="">
+  {template 'public/breadcrumb'}
+  <div class="layui-row">
+    <div class="layui-col-12">
+      <form class="layui-form layui-form-pane">
+        
+        <div class="layui-form-item">
+          <label class="layui-form-label">投票链接</label>
+          <div class="layui-input-block">
+            <input type="text" 
+              name="url"
+              id="id-poll-url"
+              lay-verify="required" 
+              value="{php echo empty($data['url']) ? $url : $data['url']}"
+              autocomplete="off" class="layui-input"
+              disabled>
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <label class="layui-form-label">投票活动类型</label>
+          <div class="layui-input-block">
+            <input type="radio" name="poll_type" 
+            value="1" title="图片" 
+            {if empty($data['poll_type'])} 
+              checked 
+              {elseif $data['poll_type'] == 1}
+              checked
+            {/if}
+            >
+            <input type="radio" name="poll_type" 
+            value="2" title="视频"
+            {if $data['poll_type'] == 2} checked {/if}>
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <label class="layui-form-label">投票活动标题</label>
+          <div class="layui-input-block">
+            <input type="text" 
+              name="title"
+              lay-verify="required" 
+              placeholder="请输入投票活动标题（页面的标题）"
+              value="{$data['title']}"
+              autocomplete="off" class="layui-input">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">页面底部标语</label>
+          <div class="layui-input-block">
+            <input type="text" 
+              name="brand_name"
+              value="{$data['brand_name']}"
+              placeholder="请输入底部标语，不填默认为空" 
+              autocomplete="off" class="layui-input">
+          </div>
+        </div>
+
+        
+        <div class="layui-form-item">
+          <label class="layui-form-label">投票开始时间</label>
+          <div class="layui-input-block">
+            <input type="text" 
+              name="poll_start_time"
+              lay-verify="required" 
+              value="{$data['poll_start_time']}"
+              id="poll_start_time"
+              placeholder="请选择"
+              class="layui-input">
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <label class="layui-form-label">投票结束时间</label>
+          <div class="layui-input-block">
+            <input type="text" 
+              name="poll_end_time"
+              value="{$data['poll_end_time']}"
+              lay-verify="required" 
+              placeholder="请选择"
+              id="poll_end_time"
+              class="layui-input">
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <label class="layui-form-label">用户每日可投总票数</label>
+          <div class="layui-input-block">
+            <input type="text" 
+              name="poll_total"
+              lay-verify="required|number"
+              value="{php echo empty($data['poll_total']) ? 1 : $data['poll_total']}"
+              class="layui-input">
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <label class="layui-form-label">用户可对单个选手投票数</label>
+          <div class="layui-input-block">
+            <input type="text" 
+              name="poll_num"
+              lay-verify="required|number"
+              value="{php echo empty($data['poll_num']) ? 1 : $data['poll_num']}"
+              class="layui-input">
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <label class="layui-form-label">线上报名</label>
+          <div class="layui-input-block">
+            <input type="checkbox" name="enroll_status" 
+            {if $data['enroll_status'] == 1} checked {/if}
+            lay-skin="switch" lay-text="开启|关闭"
+            
+            >
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <label class="layui-form-label">线上背景音乐</label>
+          <div class="layui-input-block">
+            <input type="checkbox" name="bgm_status" 
+            lay-skin="switch" lay-text="开启|关闭"
+            {if $data['bgm_status'] == 1} checked {/if}
+            lay-filter="bgm_status">
+          </div>
+        </div>
+
+        <div class="layui-form-item" id="id-up-bgm">
+          <label class="layui-form-label">上传背景音乐</label>
+          <div class="layui-input-block">
+            {php echo tpl_form_field_audio('bgm_src', $data['bgm_src'])}
+            <button id="id-audio-play" class="layui-btn">播放音乐</button>
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <label class="layui-form-label">强制关注公众号</label>
+          <div class="layui-input-block">
+            <input type="checkbox" name="subscribe_status" 
+            lay-skin="switch" lay-text="开启|关闭"
+            {if $data['subscribe_status'] == 1} checked {/if}
+            lay-filter="subscribe_status">
+            <span style="color: red;margin-left: 10px;">注：该功能只有当公众号为<b>认证服务号</b>才能生效，如是订阅号，请勿开启</span>
+          </div>
+        </div>
+
+
+        <div class="layui-form-item" id="id-qrcode">
+          <label class="layui-form-label">公众号二维码</label>
+          <div class="layui-input-block">
+            {php echo tpl_form_field_image('official_qrcode', $data['official_qrcode'])}
+          </div>
+        </div>
+
+        <div class="layui-form-item" id="id-qrcode-sub">
+          <label class="layui-form-label">二维码描述</label>
+          <div class="layui-input-block">
+            <input type="text" 
+              name="official_qrcode_sub"
+              value="{$data['official_qrcode_sub']}"
+              placeholder="不填默认为空"
+              class="layui-input">          
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <label class="layui-form-label">活动详情</label>
+          <div class="layui-input-block">
+            {php echo tpl_ueditor('content', $data['content'])}
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <div class="layui-input-block">
+            <button id="config-submit" class="layui-btn" lay-submit lay-filter="config-submit">立即提交</button>
+          </div>
+        </div>
+
+        
+      </form>
+    </div>
+  </div>    
+</div>
+<script>
+  const request = new Request()
+  function toggleUpBgm(flag) {
+    console.log(flag);
+    
+    var $el = $('#id-up-bgm')
+    var hide = 'layui-hide'
+    flag ? $el.removeClass(hide) : $el.addClass(hide)
+  }
+
+  function toggleSubscribe(flag) {
+    var $qr = $('#id-qrcode')
+    var $qrSub = $('#id-qrcode-sub')
+    var hide = 'layui-hide'
+    flag ? $qr.removeClass(hide).siblings('#id-qrcode-sub').removeClass(hide) 
+    : $qr.addClass(hide).siblings('#id-qrcode-sub').addClass(hide) 
+  }
+
+
+  function playBgm(url) {
+      var loadstr = `
+        <video width="100%" height="100%"  controls="controls" autobuffer="autobuffer"  autoplay="autoplay" loop="loop">
+          <source src="${url}" type="video/mp4"></source>
+        </video>
+      `
+      layer.open({
+          type: 1,
+          title: '播放背景音乐',
+          content: loadstr,
+          area: ['60%', '400px']
+      })
+    }
+
+  layui.use(['form', 'element', 'laydate'], function() {
+    var form = layui.form
+    var element = layui.element
+    var laydate = layui.laydate
+    toggleUpBgm("{php echo $data['bgm_status'] == 1 ? true : false}")
+    toggleSubscribe("{php echo $data['subscribe_status'] == 1 ? true : false}")
+    
+    form.on('submit(config-submit)', function(data) {
+
+      let formData = data.field
+
+
+      if(!formData.url){
+        layer.msg('投票链接错误')
+        return false
+      } 
+
+      if(formData.poll_total <= 0 && formData.poll_num <= 0){
+        layer.msg('投票数必须大于0')
+        return false
+      } 
+
+      formData.enroll_status = formData.enroll_status == 'on' ? 1 : 0
+      formData.subscribe_status = formData.subscribe_status == 'on' ? 1 : 0
+      formData.bgm_status = formData.bgm_status == 'on' ? 1 : 0
+      
+      if(formData.bgm_status == 1) {
+        if(!formData.bgm_src){
+          layer.msg('请上传背景音乐')
+          return false
+        } 
+      }
+
+      if(formData.subscribe_status == 1) {
+        if(!formData.official_qrcode){
+          layer.msg('请上传公众号二维码')
+          return false
+        } 
+      }
+      ut.showLoading(true)
+      console.log(formData);
+      request.http_post("{php echo $this->createWebUrl('api_edit_config')}", formData).then(res => {
+        console.log('res', res);
+        
+        ut.sucDoPage(res.message, "{php echo $this->createWebUrl('index')}")
+      })
+
+      return false;
+    })
+    
+    
+    form.on('switch(bgm_status)', function(data){
+      let checked = data.elem.checked
+      
+      toggleUpBgm(checked)
+    })
+
+    form.on('switch(subscribe_status)', function(data){
+      let checked = data.elem.checked
+      
+      toggleSubscribe(checked)
+    })
+
+    // 播放音频
+    $('#id-audio-play').click(function(e) {
+      e.preventDefault()
+      var self = $(this)
+      var url = self.siblings().find("input[name='bgm_src']").attr('url') 
+      || window.sysinfo.attachurl + self.siblings().find("input[name='bgm_src']").attr('value') 
+      if(!url) return layer.msg('请选择音频')
+      playBgm(url)
+
+
+    })
+
+    // 渲染时间日期控件
+    laydate.render({
+      //指定元素
+      elem: '#poll_start_time',
+      type: 'datetime' 
+    });
+
+    laydate.render({
+      //指定元素
+      elem: '#poll_end_time',
+      type: 'datetime'  
+    });
+  })
+</script>
+{template 'common/footer'}

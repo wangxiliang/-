@@ -1,0 +1,144 @@
+{template 'common/header'}
+{template 'public/lib'}
+<div class="">
+  {template 'public/breadcrumb'}
+  <div class="layui-row">
+
+    <div class="layui-col-12" style="text-align: right;">
+      <div class="layui-btn-container" >
+        <a href="{php echo $this->createWebUrl('banner_add')}" class="layui-btn layui-btn-sm" lay-event="getCheckData"><i class="layui-icon layui-icon-addition"></i>添加banner</a>
+        
+      </div>
+    </div>
+
+    <div class="layui-col-12">
+      
+      <table class="layui-hide" lay-filter="parse-table-demo" id="">
+        <thead>
+          <tr>
+            <th lay-data="{field:'id', width:200}">id</th>
+            <th lay-data="{field:'type', width:200}">类型</th>
+            <th lay-data="{field:'redirect_url', width:150}">跳转地址</th>
+            <th lay-data="{field:'src', minWidth: 180}">图片</th>
+            <th lay-data="{field:'sort', minWidth: 180, edit: 'text'}">排序</th>
+            <th lay-data="{field:'create_time', minWidth: 180}">创建时间</th>
+            <th lay-data="{field:'op', minWidth: 180}">操作</th>
+          </tr> 
+        </thead>
+        <tbody>
+          {loop $list $index $item}
+            <tr>
+              <td>{$item['id']}</td>
+              <td>
+                {if $item['type'] == 1}
+                  首页
+                  {elseif $item['type'] == 2}
+                  排行榜
+                  {elseif $item['type'] == 3}
+                  报名页
+                {/if}
+              </td>
+              <td>{php echo empty($item['redirect_url']) ? '--' : $item['redirect_url']}</td>
+              <td>
+                <img height="80" src="{$item['src']}" alt="">
+              </td>
+              <td>
+                {$item['sort']}
+              </td>
+              <td>
+                {php echo date('Y-m-d H:i:s', $item['create_time'])}
+              </td>
+              <td>
+                <a 
+                class="layui-btn layui-btn-xs" 
+                href="{php echo $this->createWebUrl('banner_edit', ['id' => $item['id']])}" 
+                lay-event="edit">编辑</a>
+                <button 
+                  data-id="{$item['id']}"
+                  class="layui-btn layui-btn-danger layui-btn-xs banner-del" 
+                  lay-event="del">删除</button>   
+              </td>
+            </tr>
+          {/loop}
+        </tbody>
+      </table>
+      <div id="page"></div>
+    </div>
+  </div>
+</div>
+<script>
+  const request = new Request
+  let bannerUrl = "{php echo $this->createWebUrl('banner')}"
+  layui.use(['table', 'element', 'laypage'], function(){
+    var table = layui.table
+    var element = layui.element
+    var laypage = layui.laypage
+    table.init('parse-table-demo')
+    // 监听单元格编辑 TODO
+    table.on('edit(parse-table-demo)', function(obj){
+      var value = obj.value.trim() //得到修改后的值
+      ,data = obj.data //得到所在行所有键值
+      ,field = obj.field,
+      id = data.id //得到字段
+
+      console.log(value.trim(), data);
+      
+      let url = "{php echo $this->createWebUrl('api_edit_banner')}"
+      request.http_get(url, {id: id, sort: value, do_type: 'sort'}).then(res => {
+        console.log(res);
+        layer.msg(res.message)
+        // ut.sucDoPage(res.message, bannerUrl)
+      })
+
+
+    });
+
+    // 分页渲染
+    laypage.render({
+        elem: 'page' 
+        ,count: "{php echo $total}" // 数据总数，从服务端得到
+        ,curr: "{php echo $page}" // 服务器端回传当前页
+        ,jump: function(obj, first){
+            //obj包含了当前分页的所有参数，比如：
+            console.log(obj.curr);  //得到当前页，以便向服务端请求对应页的数据。
+            console.log(obj.limit); //得到每页显示的条数
+            //首次不执行,使用原始的curr,后面需要自己通过回传来更新
+            var curr = obj.curr;
+            if(!first){
+              // location.href = 'index.php?&a=adminLogList&page='+obj.curr;
+              let url = bannerUrl
+              location.href = url + `&page=${obj.curr}`
+            }
+        }
+    })
+
+    // 删除事件
+    $('.banner-del').click(function(e) {
+      let self = $(this)
+      layer.open({
+        type: 0
+        ,title: '温馨提示'
+        ,id: 'layerDemo' //防止重复弹出
+        ,content: '确定删除该banner？'
+        ,btn: ['确定', '取消']
+        ,btnAlign: 'c' //按钮居中
+        ,shade: 0.3 //不显示遮罩
+        ,yes: function(){
+          let url = "{php echo $this->createWebUrl('api_del_banner')}"
+          ut.showLoading(true)
+          request.http_get(url, {id: self.data('id')}).then(res => {
+            console.log(res);
+            ut.sucDoPage(res.message, bannerUrl)
+          })
+        },
+        no() {
+          layer.closeAll();
+        }
+      });
+      
+      
+    })
+  });
+
+</script>
+{template 'common/footer'}

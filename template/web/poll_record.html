@@ -1,0 +1,109 @@
+{template 'common/header'}
+{template 'public/lib'}
+<div class="">
+  {template 'public/breadcrumb'}
+  <div class="layui-row">
+
+    <div class="layui-col-12">
+      
+      <table class="layui-hide" lay-filter="parse-table-demo" id="">
+        <thead>
+          <tr>
+            <th lay-data="{field:'id', width:100}">id</th>
+            <th lay-data="{field:'name', width:150}">受票人</th>
+            <th lay-data="{field:'poll_num', width:150}">投票数</th>
+            <th lay-data="{field:'title', minWidth: 180}">作品标题</th>
+            <th lay-data="{field:'create_time', minWidth: 180}">投票时间</th>
+            <th lay-data="{field:'op', minWidth: 180}">操作</th>
+          </tr> 
+        </thead>
+        <tbody>
+          {loop $list $index $item}
+            <tr>
+              <td>{$item['id']}</td>
+              
+              <td>
+                {$item['username']}
+              </td>
+              <td>
+                {$item['poll_num']}
+              </td>
+              <td>
+                {$item['title']}
+              </td>
+              <td>
+                {php echo date('Y-m-d H:i:s', $item['create_time'])}
+              </td>
+              <td>
+                <button 
+                  data-id="{$item['id']}"
+                  class="layui-btn layui-btn-danger layui-btn-xs enroll-del" 
+                  lay-event="del">删除</button>   
+              </td>
+            </tr>
+          {/loop}
+        </tbody>
+      </table>
+      <div id="page"></div>
+    </div>
+  </div>    
+</div>
+<script>
+  const request = new Request
+  let pollRecordUrl = "{php echo $this->createWebUrl('poll_record')}"
+  layui.use(['table', 'element', 'laypage'], function(){
+    var table = layui.table
+    var element = layui.element
+    var laypage = layui.laypage
+    table.init('parse-table-demo')
+    
+
+    // 分页渲染
+    laypage.render({
+        elem: 'page' 
+        ,count: "{php echo $total}" // 数据总数，从服务端得到
+        ,curr: "{php echo $page}" // 服务器端回传当前页
+        ,jump: function(obj, first){
+            //obj包含了当前分页的所有参数，比如：
+            console.log(obj.curr);  //得到当前页，以便向服务端请求对应页的数据。
+            console.log(obj.limit); //得到每页显示的条数
+            //首次不执行,使用原始的curr,后面需要自己通过回传来更新
+            var curr = obj.curr;
+            if(!first){
+              // location.href = 'index.php?&a=adminLogList&page='+obj.curr;
+              let url = pollRecordUrl
+              location.href = url + `&page=${obj.curr}`
+            }
+        }
+    })
+
+    // 删除事件
+    $('.enroll-del').click(function(e) {
+      let self = $(this)
+      layer.open({
+        type: 0
+        ,title: '温馨提示'
+        ,id: 'layerDemo' //防止重复弹出
+        ,content: '确定删除该记录？'
+        ,btn: ['确定', '取消']
+        ,btnAlign: 'c' //按钮居中
+        ,shade: 0.3 //不显示遮罩
+        ,yes: function(){
+          let url = "{php echo $this->createWebUrl('api_del_poll_record')}"
+          ut.showLoading(true)
+          request.http_get(url, {id: self.data('id')}).then(res => {
+            console.log(res);
+            ut.sucDoPage(res.message, pollRecordUrl)
+          })
+        },
+        no() {
+          layer.closeAll();
+        }
+      });
+      
+      
+    })
+  });
+
+</script>
+{template 'common/footer'}

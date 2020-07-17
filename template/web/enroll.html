@@ -1,0 +1,138 @@
+{template 'common/header'}
+{template 'public/lib'}
+<div class="">
+  {template 'public/breadcrumb'}
+  <div class="layui-row">
+
+    <div class="layui-col-12" style="text-align: right;">
+      <div class="layui-btn-container" >
+        <a href="{php echo $this->createWebUrl('enroll_add', ['do_type' => 'add'])}" 
+          class="layui-btn layui-btn-sm" lay-event="getCheckData">
+          <i class="layui-icon layui-icon-addition"></i>添加成员</a>
+        
+      </div>
+    </div>
+
+    <div class="layui-col-12">
+      
+      <table class="layui-hide" lay-filter="parse-table-demo" id="">
+        <thead>
+          <tr>
+            <th lay-data="{field:'id', width:100}">id</th>
+            <th lay-data="{field:'name', width:200}">姓名</th>
+            <th lay-data="{field:'phone', width:150}">联系方式</th>
+            <th lay-data="{field:'sex', minWidth: 180}">性别</th>
+            <th lay-data="{field:'poll', minWidth: 100}">票数</th>
+            <th lay-data="{field:'title', minWidth: 180}">作品标题</th>
+            <th lay-data="{field:'video_img', minWidth: 180}">作品封面</th>
+            <th lay-data="{field:'type', minWidth: 100}">作品类型</th>
+            <th lay-data="{field:'create_time', minWidth: 180}">创建时间</th>
+            <th lay-data="{field:'op', minWidth: 180}">操作</th>
+          </tr> 
+        </thead>
+        <tbody>
+          {loop $list $index $item}
+            <tr>
+              <td>{$item['id']}</td>
+              <td>
+                {$item['name']}
+              </td>
+              <td>{$item['phone']}</td>
+              <td>
+                {php echo $item['sex'] == 1 ? '男' : '女'}
+              </td>
+              <td>
+                {$item['poll']}
+              </td>
+              <td>
+                {$item['title']}
+              </td>
+              <!-- <td>
+                {$item['sub']}
+              </td> -->
+              <td>
+                <img src="{php echo $item['type'] == 1 ? $item['src'] : $item['video_img']}" alt="">
+              </td>
+              <td>
+                {php echo $item['type'] == 1 ? '图片' : '视频'}
+              </td>
+              <td>
+                {php echo date('Y-m-d H:i:s', $item['create_time'])}
+              </td>
+              <td>
+                <a 
+                class="layui-btn layui-btn-xs" 
+                href="{php echo $this->createWebUrl('enroll_add', ['do_type' => 'edit', 'id' => $item['id']])}" 
+                lay-event="edit">编辑</a>
+                <button 
+                  data-id="{$item['id']}"
+                  class="layui-btn layui-btn-danger layui-btn-xs enroll-del" 
+                  lay-event="del">删除</button>   
+              </td>
+            </tr>
+          {/loop}
+        </tbody>
+      </table>
+      <div id="page"></div>
+    </div>
+  </div>    
+</div>
+<script>
+  const request = new Request
+  let enrollUrl = "{php echo $this->createWebUrl('enroll')}"
+  layui.use(['table', 'element', 'laypage'], function(){
+    var table = layui.table
+    var element = layui.element
+    var laypage = layui.laypage
+    table.init('parse-table-demo')
+    
+
+    // 分页渲染
+    laypage.render({
+        elem: 'page' 
+        ,count: "{php echo $total}" // 数据总数，从服务端得到
+        ,curr: "{php echo $page}" // 服务器端回传当前页
+        ,jump: function(obj, first){
+            //obj包含了当前分页的所有参数，比如：
+            console.log(obj.curr);  //得到当前页，以便向服务端请求对应页的数据。
+            console.log(obj.limit); //得到每页显示的条数
+            //首次不执行,使用原始的curr,后面需要自己通过回传来更新
+            var curr = obj.curr;
+            if(!first){
+              // location.href = 'index.php?&a=adminLogList&page='+obj.curr;
+              let url = enrollUrl
+              location.href = url + `&page=${obj.curr}`
+            }
+        }
+    })
+
+    // 删除事件
+    $('.enroll-del').click(function(e) {
+      let self = $(this)
+      layer.open({
+        type: 0
+        ,title: '温馨提示'
+        ,id: 'layerDemo' //防止重复弹出
+        ,content: '确定删除该成员？'
+        ,btn: ['确定', '取消']
+        ,btnAlign: 'c' //按钮居中
+        ,shade: 0.3 //不显示遮罩
+        ,yes: function(){
+          let url = "{php echo $this->createWebUrl('api_del_enroll')}"
+          ut.showLoading(true)
+          request.http_get(url, {id: self.data('id')}).then(res => {
+            console.log(res);
+            ut.sucDoPage(res.message, enrollUrl)
+          })
+        },
+        no() {
+          layer.closeAll();
+        }
+      });
+      
+      
+    })
+  });
+
+</script>  
+{template 'common/footer'}
